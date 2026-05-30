@@ -597,6 +597,63 @@ def export_as_pdf(path: str, output_path: str = "") -> str:
     })
 
 
+@mcp.tool()
+def update_slide_text(path: str, slide_index: int, old_text: str, new_text: str) -> str:
+    """Find and replace text in a slide text box matching old_text.
+
+    Searches all text boxes on the given slide. If a box contains old_text
+    as a substring, it replaces it with new_text and returns success.
+    Only replaces the first matching text box per call.
+
+    Args:
+        path: Absolute path to .pptx
+        slide_index: Index of slide to edit
+        old_text: Text to search for (case-sensitive substring match)
+        new_text: Replacement text
+
+    Returns:
+        JSON with status, matched_text, new_text, and shape_type
+    """
+    prs = Presentation(path)
+    _ensure_slide_dimensions(prs)
+
+    if slide_index < 0 or slide_index >= len(prs.slides):
+        return json.dumps({
+            "status": "error",
+            "error": f"slide_index {slide_index} out of range (0-{len(prs.slides) - 1})"
+        })
+
+    slide = prs.slides[slide_index]
+
+    for shape in slide.shapes:
+        if not shape.has_text_frame:
+            continue
+        tf = shape.text_frame
+        full_text = ""
+        for para in tf.paragraphs:
+            full_text += para.text
+
+        if old_text in full_text:
+            # Found matching shape — do the replacement
+            for para in tf.paragraphs:
+                for run in para.runs:
+                    if old_text in run.text:
+                        run.text = run.text.replace(old_text, new_text)
+
+            prs.save(path)
+            return json.dumps({
+                "status": "ok",
+                "matched_text": old_text,
+                "new_text": new_text,
+                "shape_type": str(shape.shape_type),
+            })
+
+    return json.dumps({
+        "status": "error",
+        "error": f"No text box containing '{old_text}' found on slide {slide_index}"
+    })
+
+
 # ── MCP Resources ─────────────────────────────────────────────────────────
 
 @mcp.resource("slides://{path}")
