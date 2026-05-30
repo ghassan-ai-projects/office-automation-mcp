@@ -24,7 +24,7 @@ from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 
 from mcp.server.fastmcp import FastMCP
 
-from brand import Nature, TEMPLATES, TEMPLATE_NAMES
+from brand import Nature, TEMPLATES, TEMPLATE_NAMES, get_theme, get_theme_names
 from slides.title import add_title_slide
 from slides.content import add_content_slide
 from slides.cards import add_cards_slide
@@ -38,6 +38,11 @@ from utils import add_bg, SLIDE_W, SLIDE_H, _hex_to_rgb
 # ── Server setup ──────────────────────────────────────────────────────────
 
 mcp = FastMCP("Office Automation Engine")
+
+# Default theme — override via PPTX_THEME env var
+_DEFAULT_THEME = os.environ.get("PPTX_THEME", "nature")
+if _DEFAULT_THEME not in TEMPLATES:
+    _DEFAULT_THEME = "nature"
 
 PRESENTATION_DIMENSIONS = (SLIDE_W, SLIDE_H)
 
@@ -165,16 +170,18 @@ def _apply_brand_to_slide(slide, template_cls):
 # ── MCP Tools ─────────────────────────────────────────────────────────────
 
 @mcp.tool()
-def create_deck(path: str, template: str = "nature") -> str:
+def create_deck(path: str, template: str = "") -> str:
     """Create an empty branded presentation with 16:9 widescreen dimensions.
 
     Args:
         path: Absolute output path for the .pptx file
-        template: Template name — "nature" (default), "dark", or "light-professional"
+        template: Template name — "nature" (default), "dark", or "light-professional".
+                  Falls back to the PPTX_THEME env var if set, else "nature".
 
     Returns:
         JSON with status, path, slide_count, and slides_created
     """
+    template = template or _DEFAULT_THEME
     prs = Presentation()
     _ensure_slide_dimensions(prs)
 
@@ -189,7 +196,7 @@ def create_deck(path: str, template: str = "nature") -> str:
         xml_slides.remove(elem)
 
     # Apply brand background to any remaining slides
-    template_cls = TEMPLATES.get(template, Nature)
+    template_cls = get_theme(template)
     for slide in prs.slides:
         add_bg(slide, template_cls.BG)
 
@@ -267,18 +274,20 @@ def add_slide(path: str, slide_type: str, data: str, index: int = -1) -> str:
 
 
 @mcp.tool()
-def apply_brand(path: str, template: str = "nature", slide_index: int = -1) -> str:
+def apply_brand(path: str, template: str = "", slide_index: int = -1) -> str:
     """Apply brand colors to a slide or entire deck.
 
     Args:
         path: Absolute path to .pptx
-        template: Template name — "nature" (default) or "light-professional"
+        template: Template name — "nature" (default) or "light-professional".
+                  Falls back to the PPTX_THEME env var if set, else "nature".
         slide_index: Index of slide to brand (-1 = all slides)
 
     Returns:
         JSON with status and slides_updated count
     """
-    template_cls = TEMPLATES.get(template, Nature)
+    template = template or _DEFAULT_THEME
+    template_cls = get_theme(template)
     prs = Presentation(path)
     _ensure_slide_dimensions(prs)
 
@@ -683,11 +692,13 @@ def single_slide(path: str, index: str) -> str:
 @mcp.resource("brand://current")
 def brand_current() -> str:
     """Current brand configuration as JSON."""
+    current = get_theme(_DEFAULT_THEME)
     return json.dumps({
-        "name": Nature.NAME,
-        "colors": Nature.as_dict(),
-        "fonts": {"primary": Nature.FONT},
-        "templates_available": TEMPLATE_NAMES,
+        "name": current.NAME,
+        "colors": current.as_dict(),
+        "fonts": {"primary": current.FONT},
+        "default_theme": _DEFAULT_THEME,
+        "templates_available": get_theme_names(),
     })
 
 

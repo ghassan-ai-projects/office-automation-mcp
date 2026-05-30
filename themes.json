@@ -1,0 +1,62 @@
+{
+  "themes": {
+    "nature": {
+      "name": "Nature",
+      "font": "Calibri",
+      "colors": {
+        "bg": "#F5F7F5",
+        "card_bg": "#EDF2ED",
+        "card2": "#E1EAE1",
+        "border": "#B0C4B0",
+        "accent": "#1D6F42",
+        "accent2": "#155534",
+        "success": "#0E7490",
+        "text_primary": "#1A2E1A",
+        "text_secondary": "#4A6741",
+        "text_muted": "#6B8268",
+        "white": "#FFFFFF"
+      }
+    },
+    "light-professional": {
+      "name": "Light Professional",
+      "font": "Calibri",
+      "colors": {
+        "bg": "#FFFFFF",
+        "card_bg": "#F3F4F6",
+        "card2": "#E8EAED",
+        "border": "#D1D5DB",
+        "accent": "#2563EB",
+        "accent2": "#1E40AF",
+        "success": "#059C69",
+        "text_primary": "#111827",
+        "text_secondary": "#4B5563",
+        "text_muted": "#6B7280",
+        "white": "#FFFFFF"
+      }
+    },
+    "dark": {
+      "name": "Dark",
+      "font": "Calibri",
+      "colors": {
+        "bg": "#1A1A2E",
+        "card_bg": "#16213E",
+        "card2": "#0F3460",
+        "border": "#2A2A4A",
+        "accent": "#E94560",
+        "accent2": "#C73652",
+        "success": "#0EA5E9",
+        "text_primary": "#EAEAEA",
+        "text_secondary": "#B0B0B0",
+        "text_muted": "#808098",
+        "white": "#FFFFFF"
+      }
+    }
+  },
+  "defaults": {
+    "slide_width_inches": 13.333,
+    "slide_height_inches": 7.5,
+    "default_font": "Calibri",
+    "footer_text": "",
+    "auto_save": true
+  }
+}

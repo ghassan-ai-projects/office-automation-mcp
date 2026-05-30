@@ -4,11 +4,12 @@ An [MCP](https://modelcontextprotocol.io) server that wraps **python-pptx** into
 
 ## Features
 
-- **10 MCP tools** — full presentation lifecycle: create, add slides, brand, duplicate, reorder, delete, background, images, export
+- **11 MCP tools** — full presentation lifecycle: create, add slides, brand, duplicate, reorder, delete, background, images, export, text editing
 - **3 MCP resources** — read deck structure, single slide, brand config
 - **8 slide types** — title, content/bullets, 2×2 bento cards, process flow, quotes, fun scale, CTA, thanks
-- **Nature Theme** — sage white + forest green brand colors
-- **16:9 widescreen** — professional aspect ratio
+- **Configurable theme system** — switch between themes via JSON config or `PPTX_THEME` env var
+- **Built-in themes** — Nature (sage green), Light Professional (blue), Dark (navy/rose)
+- **16:9 widescreen** — professional aspect ratio (configurable)
 - **macOS integration** — auto-opens in Microsoft PowerPoint after save
 
 ## Quick Start
@@ -59,6 +60,89 @@ Or add to `openclaw.json`:
 ```
 
 Replace `<path-to-repo>` with your checkout path (e.g. `~/projects/office-automation-mcp` or the absolute path on your machine).
+
+## Theme Configuration
+
+All brand colors, fonts, and defaults are defined in `themes.json` at the project root.
+
+### Available Themes
+
+| Key | Name | Palette |
+|-----|------|---------|
+| `nature` | Nature | Sage white + forest green (default) |
+| `light-professional` | Light Professional | Clean white + blue accent |
+| `dark` | Dark | Navy background + rose accent |
+
+### Choosing a Default Theme
+
+Set the `PPTX_THEME` environment variable to any theme key:
+
+```bash
+# Always use the dark theme
+export PPTX_THEME=dark
+uv run --with python-pptx --with fastmcp mcp_server.py
+```
+
+```bash
+# Or inline for a single run
+PPTX_THEME=dark uv run --with python-pptx --with fastmcp mcp_server.py
+```
+
+If the env var is unset or references a non-existent theme, the server falls back to `nature`.
+
+### Adding a Custom Theme
+
+Add a new entry under `"themes"` in `themes.json`:
+
+```json
+{
+  "themes": {
+    "ocean": {
+      "name": "Ocean",
+      "font": "Calibri",
+      "colors": {
+        "bg": "#E8F4F8",
+        "card_bg": "#D1ECF1",
+        "card2": "#BEE5EB",
+        "border": "#86C4D4",
+        "accent": "#0077B6",
+        "accent2": "#005F8A",
+        "success": "#2EC4B6",
+        "text_primary": "#0A1E2A",
+        "text_secondary": "#2E5A6B",
+        "text_muted": "#5A8A9A",
+        "white": "#FFFFFF"
+      }
+    }
+  }
+}
+```
+
+Your new theme is immediately available to all MCP tools (no restart needed if the server is still running — the JSON is re-read per request via caching).
+
+### Configurable Defaults
+
+The `"defaults"` section in `themes.json` controls slide-level settings:
+
+```json
+{
+  "defaults": {
+    "slide_width_inches": 13.333,
+    "slide_height_inches": 7.5,
+    "default_font": "Calibri",
+    "footer_text": "Confidential",
+    "auto_save": true
+  }
+}
+```
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `slide_width_inches` | `13.333` | Slide width (16:9) |
+| `slide_height_inches` | `7.5` | Slide height (16:9) |
+| `default_font` | `"Calibri"` | Fallback font for all slides |
+| `footer_text` | `""` | Text appended to slide footers |
+| `auto_save` | `true` | Automatically save on every tool call |
 
 ## Usage Examples
 
@@ -131,9 +215,9 @@ Late Night Commit Scale — colored severity gradient.
 
 | Tool | Description |
 |------|-------------|
-| `create_deck(path, template)` | Create empty branded presentation |
+| `create_deck(path, template)` | Create empty branded presentation (template defaults to `PPTX_THEME` env var or `"nature"`) |
 | `add_slide(path, slide_type, data, index)` | Add a typed slide |
-| `apply_brand(path, template, slide_index)` | Apply brand colors |
+| `apply_brand(path, template, slide_index)` | Apply brand colors (template defaults to `PPTX_THEME` env var or `"nature"`) |
 | `read_slide_structure(path)` | Read deck structure as JSON |
 | `duplicate_slide(path, source_index, target_index)` | Duplicate a slide |
 | `delete_slide(path, index)` | Remove a slide |
@@ -141,6 +225,7 @@ Late Night Commit Scale — colored severity gradient.
 | `set_slide_background(path, slide_index, color)` | Set slide background |
 | `add_image(path, slide_index, image_path, left, top, width, height)` | Add image to slide |
 | `export_as_pdf(path, output_path)` | Export as PDF |
+| `update_slide_text(path, slide_index, old_text, new_text)` | Find and replace text on a slide |
 
 ## Resources
 
@@ -148,14 +233,15 @@ Late Night Commit Scale — colored severity gradient.
 |-----|-------------|
 | `slides://{path}` | Full slide structure JSON |
 | `slides://{path}/{index}` | Single slide JSON |
-| `brand://current` | Current brand config |
+| `brand://current` | Current brand config (includes `default_theme` and `templates_available`) |
 
 ## Project Structure
 
 ```
 office-automation-mcp/
 ├── mcp_server.py        # Main MCP server (FastMCP)
-├── brand.py             # Brand color/font definitions
+├── brand.py             # Theme loader — reads themes.json
+├── themes.json          # Theme & defaults configuration
 ├── utils.py             # Shared helper functions
 ├── slides/
 │   ├── __init__.py

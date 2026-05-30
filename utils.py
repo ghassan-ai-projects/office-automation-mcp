@@ -7,11 +7,15 @@ from pptx.oxml.ns import qn, nsmap
 from pptx.util import Inches, Pt, Emu
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 
-from brand import Nature
+from brand import Nature, load_config
 
-# ── Widescreen dimensions ─────────────────────────────────────────────────
-SLIDE_W = Inches(13.333)
-SLIDE_H = Inches(7.5)
+# ── Slide dimensions (configurable via themes.json / PPTX_THEME) ─────────
+_config = load_config()
+SLIDE_W = Inches(_config.get("slide_width_inches", 13.333))
+SLIDE_H = Inches(_config.get("slide_height_inches", 7.5))
+DEFAULT_FONT = _config.get("default_font", "Calibri")
+FOOTER_TEXT = _config.get("footer_text", "")
+AUTO_SAVE = _config.get("auto_save", True)
 
 # ── Margins ───────────────────────────────────────────────────────────────
 MARGIN_L = Inches(0.8)
