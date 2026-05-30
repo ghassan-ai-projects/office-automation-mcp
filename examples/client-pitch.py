@@ -127,7 +127,7 @@ def build_pitch_deck(output_path: str):
         "subheadline": "Schedule a demo and see Velora Analytics in action with your data",
         "button_text": "Book a Demo",
         "url": "velora-analytics.io/demo",
-        "contact": "Ghassan · ghassan@velora-analytics.io · +1 (555) 000-0000",
+        "contact": "Your Name · email@example.com · +1 (555) 000-0000",
     })
 
     # ── Slide 7: Thanks ─────────────────────────────────────────────────

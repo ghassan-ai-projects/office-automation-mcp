@@ -1,11 +1,11 @@
-"""Ghassan Nature Theme brand colors and font definitions."""
+"""Nature Theme brand colors and font definitions."""
 
 from pptx.dml.color import RGBColor
 
 # ── Nature Theme — Sage White + Forest Green ──────────────────────────────
 
 class Nature:
-    NAME = "Ghassan Nature"
+    NAME = "Nature"
     FONT = "Calibri"
 
     # Backgrounds
@@ -90,7 +90,7 @@ class LightProfessional:
 # ── Template registry ─────────────────────────────────────────────────────
 
 TEMPLATES = {
-    "ghassan-nature": Nature,
+    "nature": Nature,
     "light-professional": LightProfessional,
 }
 

@@ -7,7 +7,7 @@ An [MCP](https://modelcontextprotocol.io) server that wraps **python-pptx** into
 - **10 MCP tools** — full presentation lifecycle: create, add slides, brand, duplicate, reorder, delete, background, images, export
 - **3 MCP resources** — read deck structure, single slide, brand config
 - **8 slide types** — title, content/bullets, 2×2 bento cards, process flow, quotes, fun scale, CTA, thanks
-- **Ghassan Nature Theme** — sage white + forest green brand colors
+- **Nature Theme** — sage white + forest green brand colors
 - **16:9 widescreen** — professional aspect ratio
 - **macOS integration** — auto-opens in Microsoft PowerPoint after save
 
@@ -26,56 +26,60 @@ uv run --with python-pptx --with fastmcp mcp_server.py
 
 Add to OpenClaw MCP config:
 
+```bash
+openclaw mcp set office-automation-engine '{
+  "command": "uv",
+  "args": [
+    "run",
+    "--with", "python-pptx",
+    "--with", "fastmcp",
+    "<path-to-repo>/mcp_server.py"
+  ]
+}'
+```
+
+Or add to `openclaw.json`:
+
 ```json
 {
   "mcp": {
-    "office-automation-engine": {
-      "type": "stdio",
-      "command": "uv",
-      "args": [
-        "run",
-        "--with", "python-pptx",
-        "--with", "fastmcp",
-        "/Users/ghassan/.openclaw/mcp/office_automation_server/mcp_server.py"
-      ],
-      "enabled": true
+    "servers": {
+      "office-automation-engine": {
+        "command": "uv",
+        "args": [
+          "run",
+          "--with", "python-pptx",
+          "--with", "fastmcp",
+          "<path-to-repo>/mcp_server.py"
+        ]
+      }
     }
   }
 }
 ```
 
+Replace `<path-to-repo>` with your checkout path (e.g. `~/projects/office-automation-mcp` or the absolute path on your machine).
+
 ## Usage Examples
 
 ### Creating a Deck
 
-```python
-import json, subprocess
+Using the MCP tool from any OpenClaw agent:
 
-# Using the MCP server directly
-def call_tool(tool_name, args):
-    cmd = [
-        "uv", "run", "--with", "python-pptx", "--with", "fastmcp",
-        "mcp_server.py",
-        "call-tool", tool_name, json.dumps(args)
-    ]
-    return json.loads(subprocess.check_output(cmd, text=True))
+```
+Create a 5-slide pitch deck at ~/Documents/pitch.pptx with:
+1. Title: "Project Alpha"
+2. Content: Key milestones
+3. Cards: 4 product features
+4. Quote: Customer testimonial
+5. CTA: "Get Started Today"
+```
 
-# Create deck
-result = call_tool("create_deck", {
-    "path": "/Users/ghassan/ai-documents/presentations/demo-2026-05-30.pptx"
-})
+Or directly via command line:
 
-# Add title slide
-result = call_tool("add_slide", {
-    "path": "/Users/ghassan/ai-documents/presentations/demo-2026-05-30.pptx",
-    "slide_type": "title",
-    "data": json.dumps({
-        "headline": "Project Alpha",
-        "subheadline": "A New Direction",
-        "tagline": "Q3 2026 · Strategic Review",
-        "attribution": "Ghassan AI Projects"
-    })
-})
+```bash
+uv run --with python-pptx --with fastmcp mcp_server.py \
+  call-tool create_deck '{"path": "~/Documents/demo.pptx"}'
 ```
 
 ## Slide Types & Data Schemas

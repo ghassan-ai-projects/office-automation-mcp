@@ -165,12 +165,12 @@ def _apply_brand_to_slide(slide, template_cls):
 # ── MCP Tools ─────────────────────────────────────────────────────────────
 
 @mcp.tool()
-def create_deck(path: str, template: str = "ghassan-nature") -> str:
+def create_deck(path: str, template: str = "nature") -> str:
     """Create an empty branded presentation with 16:9 widescreen dimensions.
 
     Args:
         path: Absolute output path for the .pptx file
-        template: Template name — "ghassan-nature" (default), "dark", or "light-professional"
+        template: Template name — "nature" (default), "dark", or "light-professional"
 
     Returns:
         JSON with status, path, slide_count, and slides_created
@@ -267,12 +267,12 @@ def add_slide(path: str, slide_type: str, data: str, index: int = -1) -> str:
 
 
 @mcp.tool()
-def apply_brand(path: str, template: str = "ghassan-nature", slide_index: int = -1) -> str:
+def apply_brand(path: str, template: str = "nature", slide_index: int = -1) -> str:
     """Apply brand colors to a slide or entire deck.
 
     Args:
         path: Absolute path to .pptx
-        template: Template name — "ghassan-nature" (default) or "light-professional"
+        template: Template name — "nature" (default) or "light-professional"
         slide_index: Index of slide to brand (-1 = all slides)
 
     Returns:
